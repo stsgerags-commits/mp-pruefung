@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#5A3E8E">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MP Prüfung">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Bewertung Mündliche Prüfung – Leistungsbild Thüringen</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+.app-shell { max-width: 780px; margin: 0 auto; padding: 24px 16px 60px; }
+.app-header { margin-bottom: 24px; }
+.app-header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+.app-header p { font-size: 13px; color: #666; margin-top: 4px; }
+.progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: #5A3E8E; border-radius: 2px; transition: width 0.3s; }
+.tabs { display: flex; gap: 6px; margin-bottom: 20px; }
+.tab { flex: 1; padding: 10px; border-radius: 8px; font-size: 14px; cursor: pointer; text-align: center; background: #fff; color: #555; border: 1px solid #ddd; transition: all 0.15s; font-weight: 400; }
+.tab:hover { background: #f3f0fa; }
+.tab.active { background: #5A3E8E; color: #fff; border-color: #5A3E8E; font-weight: 500; }
+.view { display: none; }
+.view.active { display: block; }
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.meta-field label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+.meta-field input { width: 100%; padding: 9px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #1a1a1a; transition: border-color 0.15s; }
+.meta-field input:focus { outline: none; border-color: #5A3E8E; box-shadow: 0 0 0 3px rgba(90,62,142,0.1); }
+.section { margin-bottom: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden; }
+.section-header { padding: 11px 16px; background: #f8f8f8; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 10px; }
+.section-title { font-size: 13px; font-weight: 600; color: #333; text-transform: uppercase; letter-spacing: 0.06em; }
+.section-badge { font-size: 12px; padding: 2px 10px; border-radius: 20px; background: #ede8fa; color: #5A3E8E; font-weight: 500; margin-left: auto; }
+.criterion { border-bottom: 1px solid #f0f0f0; padding: 16px; }
+.criterion:last-child { border-bottom: none; }
+.criterion-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+.criterion-desc { font-size: 12px; color: #888; margin-bottom: 12px; }
+.scale { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.scale-btn { border: 1px solid #ddd; border-radius: 8px; padding: 9px 4px; cursor: pointer; text-align: center; background: #fff; transition: all 0.15s; }
+.scale-btn:hover { border-color: #aaa; background: #f8f8f8; transform: translateY(-1px); }
+.scale-note { font-size: 11px; font-weight: 600; color: #555; }
+.scale-word { font-size: 9px; color: #999; margin-top: 2px; }
+.pts-badge { display: inline-block; font-size: 9px; font-weight: 600; color: #888; background: #f0f0f0; border: 1px solid #ddd; border-radius: 10px; padding: 1px 5px; margin-bottom: 3px; }
+.scale-btn.sel-1 { background: #E8F4E8; border-color: #2D6A2D; } .scale-btn.sel-1 .scale-note { color: #2D6A2D; }
+.scale-btn.sel-2 { background: #E6F1FB; border-color: #185FA5; } .scale-btn.sel-2 .scale-note { color: #185FA5; }
+.scale-btn.sel-3 { background: #EAF3DE; border-color: #3B6D11; } .scale-btn.sel-3 .scale-note { color: #3B6D11; }
+.scale-btn.sel-4 { background: #FAEEDA; border-color: #854F0B; } .scale-btn.sel-4 .scale-note { color: #854F0B; }
+.scale-btn.sel-5 { background: #FCEBEB; border-color: #A32D2D; } .scale-btn.sel-5 .scale-note { color: #A32D2D; }
+.scale-btn.sel-6 { background: #F7C1C1; border-color: #501313; } .scale-btn.sel-6 .scale-note { color: #501313; }
+.pts-row { display: none; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.pts-row.shown { display: flex; }
+.pts-row-label { font-size: 11px; color: #777; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 2px; }
+.pts-btn { border: 1px solid #ccc; background: #fff; border-radius: 6px; padding: 4px 11px; font-size: 13px; font-weight: 600; color: #555; cursor: pointer; transition: all 0.12s; }
+.pts-btn:hover { background: #f2f2f2; border-color: #999; }
+.pts-btn.active { background: #5A3E8E; border-color: #5A3E8E; color: #fff; }
+.preview-text { font-size: 12px; color: #5A3E8E; margin-top: 8px; padding: 7px 10px; background: #f3f0fa; border-radius: 6px; border-left: 3px solid #5A3E8E; font-style: italic; display: none; line-height: 1.5; }
+.preview-text.shown { display: block; }
+.btn-primary { width: 100%; padding: 13px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: #5A3E8E; color: #fff; border: none; margin-top: 8px; transition: background 0.15s; }
+.btn-primary:hover { background: #432e6b; }
+.btn-export { background: #1A6B1A; }
+.btn-export:hover { background: #124e12; }
+.score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.score-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 14px; text-align: center; }
+.score-card-label { font-size: 11px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.score-card-value { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+.score-card-sub { font-size: 11px; color: #888; margin-top: 4px; }
+.bar-container { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+.bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.bar-row:last-child { margin-bottom: 0; }
+.bar-label { font-size: 13px; color: #555; width: 120px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 10px; background: #f0f0f0; border-radius: 5px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+.bar-pts { font-size: 12px; color: #666; width: 50px; text-align: right; flex-shrink: 0; }
+.note-display { text-align: center; padding: 24px; border-radius: 12px; margin-bottom: 16px; border: 2px solid #ddd; }
+.note-number { font-size: 52px; font-weight: 700; }
+.note-word { font-size: 20px; font-weight: 500; margin-top: 4px; }
+.note-range { font-size: 13px; color: #777; margin-top: 6px; }
+.note-detail { font-size: 12px; color: #999; margin-top: 8px; }
+.worturteil-box { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.worturteil-header { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+.worturteil-text { font-size: 14px; color: #1a1a1a; line-height: 1.9; white-space: pre-wrap; }
+.worturteil-edit { width: 100%; margin-top: 12px; padding: 10px; font-size: 13px; border: 1px solid #ddd; border-radius: 8px; color: #1a1a1a; resize: vertical; min-height: 200px; font-family: inherit; line-height: 1.8; }
+.worturteil-edit:focus { outline: none; border-color: #5A3E8E; }
+.toggle-edit { font-size: 12px; color: #5A3E8E; cursor: pointer; text-decoration: underline; margin-top: 8px; display: inline-block; }
+@media (max-width: 500px) {
+  .scale { grid-template-columns: repeat(3, 1fr); }
+  .meta-grid { grid-template-columns: 1fr; }
+  .score-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.hf-kopf { background:#f3f0fa; border:1px solid #d8cfe9; border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+.hf-kopf .nr { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#5A3E8E; font-weight:700; }
+.hf-kopf .titel { font-size:17px; font-weight:700; margin:2px 0 4px; }
+.hf-kopf .unter { font-size:12px; color:#666; line-height:1.5; }
+.import-drop { border:2px dashed #d0c6e3; border-radius:10px; padding:16px; text-align:center; font-size:13px; color:#6b5f80; cursor:pointer; background:#fbfafd; }
+.import-drop:hover { border-color:#5A3E8E; background:#f3f0fa; }
+.import-status { font-size:12px; margin-top:10px; padding:8px 10px; border-radius:6px; display:none; line-height:1.5; }
+.import-status.shown { display:block; }
+.import-status.ok { background:#E8F4E8; border:1px solid #A8CDA8; color:#2D6A2D; }
+.import-status.err { background:#FCEBEB; border:1px solid #E0A8A8; color:#A32D2D; }
+.hf-item { border-bottom:1px solid #f0f0f0; padding:10px 0; }
+.hf-item:last-child { border-bottom:none; }
+.hf-zeile { display:flex; gap:10px; align-items:flex-start; }
+.hf-zeile input[type=checkbox] { margin-top:3px; width:17px; height:17px; flex-shrink:0; accent-color:#5A3E8E; }
+.hf-text { font-size:13px; line-height:1.55; flex:1; }
+.hf-item.erledigt .hf-text { color:#5A3E8E; font-weight:600; }
+.hf-kommentar { width:100%; margin-top:6px; padding:7px 9px; font-size:12px; border:1px solid #ddd; border-radius:6px; font-family:inherit; resize:vertical; min-height:38px; }
+.hf-zaehler { font-size:11px; color:#7a7a7a; float:right; font-weight:400; text-transform:none; letter-spacing:0; }
+.lit-zeile { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.lit-zeile input[type=text] { flex:1; min-width:150px; padding:8px 10px; font-size:13px; border:1px solid #ddd; border-radius:8px; }
+.live-uhr { font-size:38px; font-weight:700; text-align:center; margin:6px 0 2px; color:#5A3E8E; }
+.live-hinweis { text-align:center; font-size:12px; color:#666; margin-bottom:12px; }
+.notiz-zeile { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.notiz-zeile input { flex:1; min-width:140px; padding:9px 12px; font-size:14px; border:1px solid #ddd; border-radius:8px; }
+.protokoll { font-size:13px; line-height:1.7; max-height:300px; overflow-y:auto; }
+.protokoll-eintrag { padding:6px 0; border-bottom:1px solid #f0f0f0; }
+.protokoll-eintrag .ts { color:#999; margin-right:6px; }
+.leer { color:#999; font-size:13px; }
+.panel { background:#fff; border:1px solid #e8e8e8; border-radius:12px; padding:16px; margin-bottom:14px; }
+.panel-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#5A3E8E; margin-bottom:12px; }
+.eigen-marke { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; background:#ede8fa; color:#5A3E8E; border-radius:9px; padding:1px 7px; margin-left:4px; vertical-align:2px; }
+.eigen-weg { font-size:11px; color:#a05050; cursor:pointer; text-decoration:underline; margin-left:4px; }
+.filter-leiste { display:flex; gap:10px; align-items:center; background:#fff; border:1px solid #e8e8e8; border-radius:10px; padding:10px 14px; margin-bottom:14px; flex-wrap:wrap; }
+.filter-schalter { display:flex; gap:8px; align-items:center; font-size:13px; cursor:pointer; }
+.filter-schalter input { width:17px; height:17px; accent-color:#5A3E8E; }
+.filter-hinweis { font-size:11px; color:#7a7a8a; margin-left:auto; }
+.akten-leiste { display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+.akten-leiste select { flex:1; min-width:160px; padding:8px 10px; font-size:13px; border:1px solid #ddd; border-radius:8px; background:#fff; font-family:inherit; }
+.btn-klein { background:#fff; border:1px solid #ccc; border-radius:8px; padding:8px 14px; font-size:13px; color:#444; cursor:pointer; }
+.btn-klein:hover { background:#f5f5f5; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="app-header">
+    <h1>Bewertung Mündliche Prüfung</h1>
+    <p>Standardisiertes Leistungsbild · Landesprüfungsamt Thüringen · Stand 13.12.13</p>
+    <div class="akten-leiste">
+      <select id="akteWahl" onchange="akteWechseln(this.value)"></select>
+      <button class="btn-klein" onclick="akteNeu()">+ Neu</button>
+      <button class="btn-klein" onclick="akteLoeschen()">Löschen</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;">
+      <span style="font-size:11px;color:#7a7a8a;">Arbeitsstand wird lokal in diesem Browser gespeichert.</span>
+      <span id="akteAnzahl" style="font-size:11px;color:#7a7a8a;margin-left:auto;"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="showView('live')">Live-Beobachtung</div>
+    <div class="tab" onclick="showView('bewertung')">Bewertung</div>
+    <div class="tab" onclick="showView('ergebnis')">Ergebnis &amp; Worturteil</div>
+  </div>
+  <div class="view active" id="view-live">
+
+    <div class="panel">
+      <div class="panel-title">Handlungsfeld importieren</div>
+      <div class="import-drop" id="importDrop" onclick="document.getElementById('importFile').click()">
+        JSON-Datei auswählen oder hierher ziehen
+      </div>
+      <input type="file" id="importFile" style="display:none" onchange="hfDateiLesen(this.files[0])">
+      <div class="import-status" id="importStatus"></div>
+      <div style="margin-top:12px;">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Alternative: JSON-Text einfügen</label>
+        <textarea id="importPaste" placeholder="JSON hier einfügen, dann auf Übernehmen tippen." style="width:100%;min-height:80px;padding:10px;font-size:12px;border:1px solid #ddd;border-radius:8px;font-family:ui-monospace,Menlo,monospace;resize:vertical;"></textarea>
+        <button class="btn-klein" style="margin-top:8px;" onclick="hfAusFeld()">Übernehmen</button>
+      </div>
+    </div>
+
+    <div id="hfKopf"></div>
+
+    <div class="filter-leiste">
+      <label class="filter-schalter">
+        <input type="checkbox" id="nurGekennzeichnet" onchange="nurMarkiert=this.checked; hfRender();">
+        <span>Nur Gekennzeichnetes anzeigen</span>
+      </label>
+      <span class="filter-hinweis" id="filterHinweis"></span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Handlungssituationen <span class="hf-zaehler" id="zaehlerHS"></span></div>
+      <div id="listeHS"></div>
+      <div class="lit-zeile" style="margin-top:10px;">
+        <input type="text" id="hsNeu" placeholder="Eigene Handlungssituation ergänzen …" onkeydown="if(event.key==='Enter')eintragHinzu('HS','hsNeu')">
+        <button class="btn-klein" onclick="eintragHinzu('HS','hsNeu')">Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Erschließungsfragen <span class="hf-zaehler" id="zaehlerEF"></span></div>
+      <div id="listeEF"></div>
+      <div class="lit-zeile" style="margin-top:10px;">
+        <input type="text" id="efNeu" placeholder="Eigene Erschließungsfrage ergänzen …" onkeydown="if(event.key==='Enter')eintragHinzu('EF','efNeu')">
+        <button class="btn-klein" onclick="eintragHinzu('EF','efNeu')">Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Inhaltliche Bezüge <span class="hf-zaehler" id="zaehlerIB"></span></div>
+      <div id="listeIB"></div>
+      <div class="lit-zeile" style="margin-top:10px;">
+        <input type="text" id="ibNeu" placeholder="Eigenen Bezug ergänzen …" onkeydown="if(event.key==='Enter')eintragHinzu('IB','ibNeu')">
+        <button class="btn-klein" onclick="eintragHinzu('IB','ibNeu')">Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Literatur der LAA <span class="hf-zaehler" id="zaehlerLit"></span></div>
+      <div id="listeLit"></div>
+      <div class="lit-zeile" style="margin-top:10px;">
+        <input type="text" id="litNeu" placeholder="Titel ergänzen …" onkeydown="if(event.key==='Enter')litHinzu()">
+        <button class="btn-klein" onclick="litHinzu()">Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Prüfungsverlauf</div>
+      <div class="live-uhr" id="liveUhr">00:00</div>
+      <div class="live-hinweis" id="liveHinweis">Uhr nicht gestartet.</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="btn-klein" style="flex:1;" onclick="uhrStart()">Start</button>
+        <button class="btn-klein" style="flex:1;" onclick="uhrStop()">Stopp</button>
+      </div>
+      <div class="notiz-zeile">
+        <input type="text" id="notizFeld" placeholder="Kurznotiz …" onkeydown="if(event.key==='Enter')notizErfassen()">
+        <button class="btn-klein" onclick="notizErfassen()">Erfassen</button>
+      </div>
+      <div class="protokoll" id="protokoll"></div>
+    </div>
+
+    <button class="btn-primary" onclick="showView('bewertung')">Zur Bewertung →</button>
+  </div>
+
+  <div class="view" id="view-bewertung">
+    <div class="meta-grid">
+      <div class="meta-field"><label>Name LAA</label><input type="text" id="laaName" placeholder="Vorname Nachname" /></div>
+      <div class="meta-field"><label>Thema / Handlungssituation</label><input type="text" id="fachThema" placeholder="z. B. Umgang mit Heterogenität" /></div>
+      <div class="meta-field"><label>Fach / Schwerpunkt</label><input type="text" id="klasse" placeholder="z. B. Grundschule – Sachunterricht" /></div>
+      <div class="meta-field"><label>Datum</label><input type="date" id="datum" /></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-title">Fachlichkeit</span><span class="section-badge" id="badge-fachlichkeit">nicht bewertet</span></div>
+      <div id="criteria-fachlichkeit"></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-title">Kommunikation</span><span class="section-badge" id="badge-kommunikation">nicht bewertet</span></div>
+      <div id="criteria-kommunikation"></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-title">Reflexion</span><span class="section-badge" id="badge-reflexion">nicht bewertet</span></div>
+      <div id="criteria-reflexion"></div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-title">Innovation</span><span class="section-badge" id="badge-innovation">nicht bewertet</span></div>
+      <div id="criteria-innovation"></div>
+    </div>
+    <button class="btn-primary" onclick="showView('ergebnis')">Worturteil erstellen →</button>
+  </div>
+  <div class="view" id="view-ergebnis">
+    <div class="score-grid" id="scoreGrid"></div>
+    <div class="bar-container" id="barContainer"></div>
+    <div class="note-display" id="noteDisplay"></div>
+    <div class="worturteil-box">
+      <div class="worturteil-header">Worturteil</div>
+      <div class="worturteil-text" id="worturteilText"></div>
+      <textarea class="worturteil-edit" id="worturteilEdit" style="display:none"></textarea>
+      <span class="toggle-edit" onclick="toggleEdit()">Worturteil bearbeiten</span>
+    </div>
+    <button class="btn-primary btn-export" onclick="exportPDF()">&#8659; Als PDF speichern</button>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button class="btn-klein" style="flex:1;" onclick="sicherungExport()">Sicherungsdatei erzeugen</button>
+      <button class="btn-klein" style="flex:1;" onclick="document.getElementById('sicherungFile').click()">Sicherung einlesen</button>
+      <input type="file" id="sicherungFile" style="display:none" onchange="sicherungDateiLesen(this.files[0])">
+    </div>
+    <div style="font-size:11px;color:#7a7a8a;margin-top:8px;line-height:1.5;">Die Sicherungsdatei enthält den vollständigen Stand dieser Prüfung einschließlich Handlungsfeld, Häkchen, Kommentaren, Protokoll und Bewertungen.</div>
+  </div>
+</div>
+
+<script>
+const CRITERIA = {
+  fachlichkeit: [
+    { id:'f1', prefix:'Die theoriegeleitete Betrachtung der Handlungssituation',
+      title:'Theoriegeleitete Betrachtung der Handlungssituation',
+      desc:'Analyse und Erläuterung der Handlungssituation auf Basis theoretischer Grundlagen',
+      indicators:['wird komplex analysiert und tiefgründig, vergleichend erläutert','wird umfassend analysiert und überwiegend erläutert','wird angemessen analysiert und prinzipiell erläutert','wird ansatzweise analysiert und oberflächlich erläutert','wird kaum analysiert und unzureichend erläutert','wird nicht analysiert und nicht erläutert'] },
+    { id:'f2', prefix:'Die fachliche Korrektheit',
+      title:'Fachliche Korrektheit',
+      desc:'Nachweis fachlicher Korrektheit in der Prüfungsleistung',
+      indicators:['wird vielschichtig, differenziert, beispielhaft nachgewiesen','wird fundiert nachgewiesen','wird grundsätzlich nachgewiesen','wird hinreichend nachgewiesen','wird kaum oder lückenhaft nachgewiesen','wird nicht nachgewiesen'] },
+    { id:'f3', prefix:'Der Bezug zu schulgesetzlichen Regelungen, Richtlinien, Lehrplänen und Fachliteratur',
+      title:'Bezug zu schulgesetzlichen Regelungen, Richtlinien, Lehrplänen und Fachliteratur',
+      desc:'Korrekte Herstellung von Bezügen zu rechtlichen und curricularen Grundlagen',
+      indicators:['wird korrekt hergestellt','wird überwiegend korrekt hergestellt','wird weitgehend korrekt hergestellt','wird teilweise korrekt hergestellt','wird kaum hergestellt','wird nicht hergestellt'] },
+    { id:'f4', prefix:'Die Schwerpunktsetzung innerhalb der Handlungssituation',
+      title:'Schwerpunktsetzung innerhalb der Handlungssituation',
+      desc:'Themengerechte und professionelle Schwerpunktsetzung',
+      indicators:['gelingt professionell','gelingt themengerecht','gelingt zweckmäßig','gelingt teilweise themengerecht und nachvollziehbar','gelingt kaum oder lückenhaft','gelingt nicht oder fehlt'] },
+    { id:'f5', prefix:'Bildungswissenschaftlicher und fachspezifischer Gehalt',
+      title:'Bildungswissenschaftlicher und fachspezifischer Gehalt',
+      desc:'Ausführung und Vernetzung bildungswissenschaftlicher und fachspezifischer Inhalte',
+      indicators:['werden professionell ausgeführt und konsequent, souverän aufeinander bezogen','werden zielgerichtet ausgeführt und themengerecht, überzeugend aufeinander bezogen','werden prinzipiell ausgeführt und zweckmäßig aufeinander bezogen','werden partiell, punktuell oder oberflächlich ausgeführt und bedingt aufeinander bezogen','werden unzureichend ausgeführt und widersprüchlich oder kaum aufeinander bezogen','werden nicht ausgeführt und nicht aufeinander bezogen'] },
+    { id:'f6', prefix:'Konzeptionelle Entscheidungen auf der Basis von Theorien und Modellen',
+      title:'Konzeptionelle Entscheidungen auf der Basis von Theorien und Modellen',
+      desc:'Begründung konzeptioneller Entscheidungen und Qualität der Auseinandersetzung',
+      indicators:['werden allumfassend begründet; kompetent und konsequent in der Auseinandersetzung','werden umfassend begründet; zielgerichtet und schlüssig in der Auseinandersetzung','werden grundsätzlich begründet; zweckmäßig in der Auseinandersetzung','werden ansatzweise begründet; in kaum erkennbarer Auseinandersetzung','werden widersprüchlich oder unzureichend begründet; ohne Auseinandersetzung','werden nicht begründet; konzeptionslos'] },
+  ],
+  kommunikation: [
+    { id:'k1', prefix:'Der Umgang mit Fragen und Impulsen',
+      title:'Umgang mit Fragen und Impulsen',
+      desc:'Souveränität, Flexibilität und Kompetenz im Umgang mit Prüferfragen',
+      indicators:['reagiert souverän, flexibel, kompetent','reagiert überzeugend und zielgerichtet','reagiert angemessen','reagiert oberflächlich oder punktuell','reagiert unpassend und unsicher','reagiert nicht'] },
+    { id:'k2', prefix:'Die Problemerfassung und -darstellung',
+      title:'Problemerfassung und -darstellung',
+      desc:'Tiefgründige und souveräne Erfassung und Darstellung des Problems',
+      indicators:['gelingt tiefgründig, allumfassend, souverän','gelingt umfassend und überzeugend','gelingt im Wesentlichen','gelingt hinreichend, bedingt, teilweise','gelingt kaum','gelingt nicht'] },
+    { id:'k3', prefix:'Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise',
+      title:'Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise',
+      desc:'Qualität der Argumentationsstruktur und Vortragsweise',
+      indicators:['werden in besonderem Maße und optimal erreicht','werden zielgerichtet erreicht','werden weitgehend erreicht','werden ansatzweise erreicht','werden kaum erreicht','werden nicht erreicht'] },
+  ],
+  reflexion: [
+    { id:'r1', prefix:'Die theoriegeleitete Praxisreflexion',
+      title:'Theoriegeleitete Praxisreflexion',
+      desc:'Gelingen der theoriegeleiteten Reflexion der Praxissituation',
+      indicators:['gelingt allumfassend und souverän','gelingt umfassend und fundiert','gelingt im Wesentlichen','gelingt im Ansatz','gelingt kaum oder widersprüchlich','gelingt nicht oder abwegig'] },
+    { id:'r2', prefix:'Die Mehrperspektivität',
+      title:'Mehrperspektivität',
+      desc:'Erreichen von Mehrperspektivität in der Reflexion',
+      indicators:['wird professionell erreicht','wird zielgerichtet und schlüssig erreicht','wird weitgehend und tragfähig erreicht','wird ansatzweise erreicht','wird kaum erreicht','wird nicht erreicht'] },
+    { id:'r3', prefix:'Die Vernetzung zu weiteren Handlungssituationen',
+      title:'Vernetzung zu weiteren Handlungssituationen',
+      desc:'Herstellung von Bezügen zu weiteren relevanten Handlungssituationen',
+      indicators:['wird optimal hergestellt','wird zielgerichtet hergestellt','wird prinzipiell hergestellt','wird oberflächlich hergestellt','wird unzureichend hergestellt','wird nicht hergestellt'] },
+    { id:'r4', prefix:'Das eigene Professionshandeln',
+      title:'Eigenes Professionshandeln',
+      desc:'Reflexion des eigenen professionellen Handelns',
+      indicators:['wird nachhaltig reflektiert','wird überzeugend reflektiert','wird grundsätzlich reflektiert','wird partiell reflektiert','wird unzureichend reflektiert','wird nicht reflektiert'] },
+  ],
+  innovation: [
+    { id:'i1', prefix:'Potenzen und Ressourcen für den Schulentwicklungsprozess',
+      title:'Potenzen und Ressourcen für den Schulentwicklungsprozess',
+      desc:'Tiefgründige Erörterung von Entwicklungspotenzen und Ressourcen',
+      indicators:['werden tiefgründig erörtert','werden fundiert erörtert','werden grundsätzlich erörtert','werden bedingt oder oberflächlich erörtert','werden unzureichend erörtert','werden nicht erörtert'] },
+    { id:'i2', prefix:'Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen',
+      title:'Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen',
+      desc:'Ableitung und Konzeption von Maßnahmen aus dem Lern- und Entwicklungsbedarf',
+      indicators:['werden zutreffend und souverän abgeleitet und konzipiert','werden schlüssig abgeleitet und konzipiert','werden im Wesentlichen abgeleitet und konzipiert','werden mit erheblichen Abstrichen, aber erkennbar abgeleitet und konzipiert','werden widersprüchlich oder lückenhaft abgeleitet und konzipiert','werden fehlerhaft abgeleitet oder bleiben konzeptionslos'] },
+  ]
+};
+
+const SCALE = [
+  {note:1,word:'sehr gut',pts:'15–14',min:14,max:15},
+  {note:2,word:'gut',pts:'13–11',min:11,max:13},
+  {note:3,word:'befriedigend',pts:'10–8',min:8,max:10},
+  {note:4,word:'ausreichend',pts:'7–5',min:5,max:7},
+  {note:5,word:'mangelhaft',pts:'4–2',min:2,max:4},
+  {note:6,word:'ungenügend',pts:'1–0',min:0,max:1}
+];
+const POINTS_BY_NOTE = [[15,14],[13,12,11],[10,9,8],[7,6,5],[4,3,2],[1,0]];
+const DEFAULT_PTS = [15,12,9,6,3,0];
+const NOTE_COLORS = {
+  1:{bg:'#E8F4E8',border:'#2D6A2D',text:'#1A4A1A'},
+  2:{bg:'#E6F1FB',border:'#185FA5',text:'#0C3A6B'},
+  3:{bg:'#EAF3DE',border:'#3B6D11',text:'#1F4A08'},
+  4:{bg:'#FAEEDA',border:'#854F0B',text:'#633806'},
+  5:{bg:'#FCEBEB',border:'#A32D2D',text:'#751F1F'},
+  6:{bg:'#F7C1C1',border:'#501313',text:'#3A0A0A'}
+};
+const scores = {};
+
+const WORTURTEIL = {
+  1:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die den Anforderungen in besonderem Maße entspricht.
+
+In der Anforderungsdimension Fachlichkeit überzeugte ${n} durch eine komplexe, theoriegeleitete Analyse der Handlungssituation. Bildungswissenschaftliche und fachspezifische Inhalte wurden professionell ausgeführt und souverän aufeinander bezogen. Konzeptionelle Entscheidungen waren allumfassend begründet; die Auseinandersetzung verlief kompetent und konsequent.
+
+In der Kommunikation reagierte ${n} auf Fragen und Impulse souverän, flexibel und kompetent. Die Problemerfassung und -darstellung gelang tiefgründig und allumfassend. Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise wurden in besonderem Maße und optimal erreicht.
+
+Die Reflexion der Praxissituation gelang allumfassend und souverän. Mehrperspektivität wurde professionell erreicht; Vernetzungen zu weiteren Handlungssituationen wurden optimal hergestellt. Das eigene Professionshandeln wurde nachhaltig reflektiert.
+
+Im Bereich Innovation wurden Potenzen und Ressourcen für den Schulentwicklungsprozess tiefgründig erörtert. Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen wurden zutreffend und souverän abgeleitet und konzipiert.
+
+Die gezeigte Leistung entspricht der Note 1 (sehr gut).`,
+
+  2:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die den Anforderungen voll entspricht.
+
+In der Anforderungsdimension Fachlichkeit wurde die Handlungssituation umfassend analysiert und überzeugend erläutert. Bildungswissenschaftliche und fachspezifische Inhalte wurden zielgerichtet ausgeführt und themengerecht aufeinander bezogen. Konzeptionelle Entscheidungen waren umfassend begründet; die Auseinandersetzung verlief zielgerichtet und schlüssig.
+
+In der Kommunikation reagierte ${n} auf Fragen und Impulse überzeugend und zielgerichtet. Die Problemerfassung und -darstellung gelang umfassend und überzeugend. Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise wurden zielgerichtet erreicht.
+
+Die Reflexion der Praxissituation gelang umfassend und fundiert. Mehrperspektivität wurde zielgerichtet und schlüssig erreicht; Vernetzungen zu weiteren Handlungssituationen wurden zielgerichtet hergestellt. Das eigene Professionshandeln wurde überzeugend reflektiert.
+
+Im Bereich Innovation wurden Potenzen und Ressourcen für den Schulentwicklungsprozess fundiert erörtert. Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen wurden schlüssig abgeleitet und konzipiert.
+
+Die gezeigte Leistung entspricht der Note 2 (gut).`,
+
+  3:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die im Allgemeinen den Anforderungen entspricht.
+
+In der Anforderungsdimension Fachlichkeit wurde die Handlungssituation angemessen analysiert und prinzipiell erläutert. Bildungswissenschaftliche und fachspezifische Inhalte wurden prinzipiell ausgeführt und zweckmäßig aufeinander bezogen. Konzeptionelle Entscheidungen waren grundsätzlich begründet; die Auseinandersetzung verlief zweckmäßig.
+
+In der Kommunikation reagierte ${n} auf Fragen und Impulse angemessen. Die Problemerfassung und -darstellung gelang im Wesentlichen. Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise wurden weitgehend erreicht.
+
+Die Reflexion der Praxissituation gelang im Wesentlichen. Mehrperspektivität wurde weitgehend und tragfähig erreicht; Vernetzungen zu weiteren Handlungssituationen wurden prinzipiell hergestellt. Das eigene Professionshandeln wurde grundsätzlich reflektiert.
+
+Im Bereich Innovation wurden Potenzen und Ressourcen für den Schulentwicklungsprozess grundsätzlich erörtert. Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen wurden im Wesentlichen abgeleitet und konzipiert.
+
+Die gezeigte Leistung entspricht der Note 3 (befriedigend).`,
+
+  4:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die zwar Mängel aufweist, im Ganzen den Anforderungen jedoch noch entspricht.
+
+In der Anforderungsdimension Fachlichkeit wurde die Handlungssituation ansatzweise analysiert und oberflächlich erläutert. Bildungswissenschaftliche und fachspezifische Inhalte wurden partiell ausgeführt und bedingt aufeinander bezogen. Konzeptionelle Entscheidungen waren ansatzweise begründet; eine erkennbare Auseinandersetzung war nur in Ansätzen spürbar.
+
+In der Kommunikation reagierte ${n} auf Fragen und Impulse oberflächlich oder punktuell. Die Problemerfassung und -darstellung gelang hinreichend, jedoch bedingt. Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise wurden ansatzweise erreicht.
+
+Die Reflexion der Praxissituation gelang im Ansatz. Mehrperspektivität wurde ansatzweise erreicht; Vernetzungen zu weiteren Handlungssituationen wurden oberflächlich hergestellt. Das eigene Professionshandeln wurde partiell reflektiert.
+
+Im Bereich Innovation wurden Potenzen und Ressourcen für den Schulentwicklungsprozess bedingt und oberflächlich erörtert. Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen wurden mit erheblichen Abstrichen, aber erkennbar abgeleitet und konzipiert.
+
+Die gezeigte Leistung entspricht der Note 4 (ausreichend).`,
+
+  5:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die den Anforderungen nicht entspricht, jedoch erkennen lässt, dass grundlegende Kenntnisse vorhanden sind und die festgestellten Mängel in absehbarer Zeit behoben werden könnten.
+
+In der Anforderungsdimension Fachlichkeit wurde die Handlungssituation kaum analysiert und unzureichend erläutert. Bildungswissenschaftliche und fachspezifische Inhalte wurden unzureichend ausgeführt und kaum aufeinander bezogen. Konzeptionelle Entscheidungen blieben widersprüchlich oder unzureichend begründet.
+
+In der Kommunikation reagierte ${n} auf Fragen und Impulse unpassend und unsicher. Die Problemerfassung und -darstellung gelang kaum. Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise wurden kaum erreicht.
+
+Die Reflexion der Praxissituation gelang kaum oder blieb widersprüchlich. Mehrperspektivität wurde kaum erreicht; Vernetzungen zu weiteren Handlungssituationen wurden unzureichend hergestellt. Das eigene Professionshandeln wurde unzureichend reflektiert.
+
+Im Bereich Innovation wurden Potenzen und Ressourcen für den Schulentwicklungsprozess unzureichend erörtert. Eigener und kollektiver Lern- und Entwicklungsbedarf sowie Maßnahmen wurden widersprüchlich oder lückenhaft abgeleitet und konzipiert.
+
+Die gezeigte Leistung entspricht der Note 5 (mangelhaft).`,
+
+  6:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die den Anforderungen nicht entspricht. Die festgestellten Mängel sind so grundlegend, dass eine Behebung in absehbarer Zeit nicht zu erwarten ist.
+
+In der Anforderungsdimension Fachlichkeit wurde die Handlungssituation nicht analysiert und nicht erläutert. Bildungswissenschaftliche und fachspezifische Inhalte wurden nicht ausgeführt und nicht aufeinander bezogen. Konzeptionelle Entscheidungen wurden nicht begründet; eine Auseinandersetzung war nicht erkennbar.
+
+In der Kommunikation reagierte ${n} auf Fragen und Impulse nicht. Die Problemerfassung und -darstellung gelang nicht. Plausibilität, Folgerichtigkeit und Stringenz in der Vortragsweise wurden nicht erreicht.
+
+Die theoriegeleitete Praxisreflexion gelang nicht oder war abwegig. Mehrperspektivität wurde nicht erreicht; Vernetzungen zu weiteren Handlungssituationen wurden nicht hergestellt. Das eigene Professionshandeln wurde nicht reflektiert.
+
+Im Bereich Innovation wurden weder Potenzen und Ressourcen noch Lern- und Entwicklungsbedarf und Maßnahmen erörtert oder konzipiert.
+
+Die gezeigte Leistung entspricht der Note 6 (ungenügend).`
+};
+
+function roundHalf(x) { return Math.floor(x + 0.5); }
+function getNote(pts) { return SCALE.find(s=>pts>=s.min&&pts<=s.max)||SCALE[SCALE.length-1]; }
+function getAvgPts(items) {
+  const rated=items.filter(i=>scores[i.id]!==undefined);
+  if(!rated.length) return null;
+  return rated.reduce((s,i)=>s+scores[i.id].pts,0)/rated.length;
+}
+
+function buildCriteria(sectionId, items) {
+  const container=document.getElementById('criteria-'+sectionId);
+  items.forEach(item=>{
+    const div=document.createElement('div');
+    div.className='criterion';
+    div.innerHTML=`<div class="criterion-title">${item.title}</div>
+      <div class="criterion-desc">${item.desc}</div>
+      <div class="scale" id="scale-${item.id}">
+        ${SCALE.map((s,i)=>`<button class="scale-btn" onclick="selectScore('${item.id}',${i},'${sectionId}')" title="${item.indicators[i]}">
+          <div class="pts-badge">${s.pts} P.</div>
+          <div class="scale-note">Note ${s.note}</div>
+          <div class="scale-word">${s.word}</div>
+        </button>`).join('')}
+      </div>
+      <div class="pts-row" id="ptsrow-${item.id}"><span class="pts-row-label">Punktwert</span><span id="ptsbtns-${item.id}"></span></div>
+      <div class="preview-text" id="prev-${item.id}"></div>`;
+    container.appendChild(div);
+  });
+}
+
+function allItems() {
+  return [...CRITERIA.fachlichkeit,...CRITERIA.kommunikation,...CRITERIA.reflexion,...CRITERIA.innovation];
+}
+
+function selectScore(id,noteIdx,section) {
+  const prev = scores[id];
+  const pts = (prev && prev.noteIdx === noteIdx) ? prev.pts : DEFAULT_PTS[noteIdx];
+  scores[id] = { noteIdx, pts, section };
+  renderCriterion(id, section);
+}
+
+function selectPts(id, pts, section) {
+  scores[id].pts = pts;
+  renderCriterion(id, section);
+}
+
+function renderCriterion(id, section) {
+  const s = scores[id];
+  const item = allItems().find(c => c.id === id);
+
+  document.getElementById('scale-'+id).querySelectorAll('.scale-btn').forEach((b,i)=>{
+    b.className='scale-btn'+(i===s.noteIdx?' sel-'+(s.noteIdx+1):'');
+  });
+
+  document.getElementById('ptsbtns-'+id).innerHTML = POINTS_BY_NOTE[s.noteIdx].map(pt =>
+    `<button class="pts-btn${pt===s.pts?' active':''}" onclick="selectPts('${id}',${pt},'${section}')">${pt}</button>`
+  ).join(' ');
+  document.getElementById('ptsrow-'+id).className = 'pts-row shown';
+
+  const prev = document.getElementById('prev-'+id);
+  if(prev&&item){
+    const prefix=item.prefix||'';
+    prev.textContent='Vorschau: \u201e'+prefix+' '+item.indicators[s.noteIdx]+'.\u201c  \u00b7  '+s.pts+' Punkte';
+    prev.className='preview-text shown';
+  }
+  updateBadge(section);
+  updateProgress();
+}
+
+function updateBadge(section) {
+  const items=CRITERIA[section];
+  const done=items.filter(i=>scores[i.id]!==undefined).length;
+  const total=items.length;
+  if(!done){document.getElementById('badge-'+section).textContent='nicht bewertet';return;}
+  const pts=items.filter(i=>scores[i.id]!==undefined).reduce((s,i)=>s+scores[i.id].pts,0)/done;
+  document.getElementById('badge-'+section).textContent=done+'/'+total+' · Ø '+pts.toFixed(1)+' Pkt.';
+}
+
+function updateProgress() {
+  const all=[...CRITERIA.fachlichkeit,...CRITERIA.kommunikation,...CRITERIA.reflexion,...CRITERIA.innovation];
+  const done=all.filter(i=>scores[i.id]!==undefined).length;
+  document.getElementById('progressBar').style.width=Math.round(done/all.length*100)+'%';
+}
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  const ORDER=['live','bewertung','ergebnis'];
+  document.querySelectorAll('.tab')[ORDER.indexOf(id)].classList.add('active');
+  if(id==='ergebnis') buildErgebnis();
+  if(id==='live') hfRender();
+}
+
+let editMode=false;
+function toggleEdit(){
+  editMode=!editMode;
+  const text=document.getElementById('worturteilText');
+  const edit=document.getElementById('worturteilEdit');
+  const toggle=document.querySelector('.toggle-edit');
+  if(editMode){edit.value=text.textContent;text.style.display='none';edit.style.display='block';toggle.textContent='Bearbeitung abschließen';}
+  else{text.textContent=edit.value;text.style.display='block';edit.style.display='none';toggle.textContent='Worturteil bearbeiten';}
+}
+
+function buildErgebnis() {
+  const all=[...CRITERIA.fachlichkeit,...CRITERIA.kommunikation,...CRITERIA.reflexion,...CRITERIA.innovation];
+  const rated=all.filter(i=>scores[i.id]!==undefined);
+  const fAvg=getAvgPts(CRITERIA.fachlichkeit);
+  const kAvg=getAvgPts(CRITERIA.kommunikation);
+  const rAvg=getAvgPts(CRITERIA.reflexion);
+  const iAvg=getAvgPts(CRITERIA.innovation);
+  const gesamtPts=rated.length?rated.reduce((s,i)=>s+scores[i.id].pts,0)/rated.length:null;
+
+  document.getElementById('scoreGrid').innerHTML=['Fachlichkeit','Kommunikation','Reflexion','Innovation'].map((l,i)=>{
+    const avg=[fAvg,kAvg,rAvg,iAvg][i];
+    const n=avg!==null?getNote(roundHalf(avg)):null;
+    return `<div class="score-card"><div class="score-card-label">${l}</div>
+      <div class="score-card-value">${avg!==null?avg.toFixed(1):'–'}</div>
+      <div class="score-card-sub">${n?'Note '+n.note+' · '+n.word:'nicht bewertet'}</div></div>`;
+  }).join('');
+
+  const bars=[
+    {label:'Fachlichkeit',avg:fAvg,color:'#5A3E8E'},
+    {label:'Kommunikation',avg:kAvg,color:'#378ADD'},
+    {label:'Reflexion',avg:rAvg,color:'#1D9E75'},
+    {label:'Innovation',avg:iAvg,color:'#BA7517'},
+    {label:'Gesamt',avg:gesamtPts,color:'#1a1a1a'}
+  ];
+  document.getElementById('barContainer').innerHTML=bars.map(b=>`<div class="bar-row">
+    <div class="bar-label">${b.label}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${b.avg!==null?Math.round(b.avg/15*100):0}%;background:${b.color}"></div></div>
+    <div class="bar-pts">${b.avg!==null?b.avg.toFixed(1)+' P.':'–'}</div></div>`).join('');
+
+  const nd=document.getElementById('noteDisplay');
+  if(gesamtPts!==null){
+    const n=getNote(roundHalf(gesamtPts));const c=NOTE_COLORS[n.note];
+    nd.style.background=c.bg;nd.style.borderColor=c.border;
+    nd.innerHTML=`<div class="note-number" style="color:${c.text}">Note ${n.note}</div>
+      <div class="note-word" style="color:${c.text}">${n.word}</div>
+      <div class="note-range">${n.pts} Punkte · Ø ${roundHalf(gesamtPts)} Punkte</div>
+      <div class="note-detail" style="color:${c.text};opacity:0.7;">Fachlichkeit: ${fAvg!==null?fAvg.toFixed(1):'–'} · Kommunikation: ${kAvg!==null?kAvg.toFixed(1):'–'} · Reflexion: ${rAvg!==null?rAvg.toFixed(1):'–'} · Innovation: ${iAvg!==null?iAvg.toFixed(1):'–'}</div>`;
+  } else {
+    nd.innerHTML='<div style="color:#888;font-size:14px;padding:8px;">Bitte alle Kriterien bewerten.</div>';
+  }
+
+  const name=document.getElementById('laaName').value||'[Name LAA]';
+  const thema=document.getElementById('fachThema').value||'[Thema]';
+  const fach=document.getElementById('klasse').value||'[Fach]';
+  const wt=document.getElementById('worturteilText');
+  const we=document.getElementById('worturteilEdit');
+  if(gesamtPts!==null){
+    const noteNum=getNote(roundHalf(gesamtPts)).note;
+    const text=WORTURTEIL[noteNum](name,thema,fach);
+    wt.textContent=text;we.value=text;
+  } else {wt.textContent='Bitte zunächst alle Kriterien bewerten.';}
+}
+
+function exportPDF() {
+  const name=document.getElementById('laaName').value||'LAA';
+  const datum=document.getElementById('datum').value||new Date().toISOString().split('T')[0];
+  const thema=document.getElementById('fachThema').value||'';
+  const fach=document.getElementById('klasse').value||'';
+  const worturteil=editMode?document.getElementById('worturteilEdit').value:document.getElementById('worturteilText').textContent;
+  const all=[...CRITERIA.fachlichkeit,...CRITERIA.kommunikation,...CRITERIA.reflexion,...CRITERIA.innovation];
+  const rated=all.filter(i=>scores[i.id]!==undefined);
+  const gesamtPts=rated.length?rated.reduce((s,i)=>s+scores[i.id].pts,0)/rated.length:null;
+  const noteObj=gesamtPts!==null?getNote(roundHalf(gesamtPts)):null;
+  const fAvg=getAvgPts(CRITERIA.fachlichkeit),kAvg=getAvgPts(CRITERIA.kommunikation),rAvg=getAvgPts(CRITERIA.reflexion),iAvg=getAvgPts(CRITERIA.innovation);
+
+  const tableRows=(items)=>items.map(item=>{
+    const s=scores[item.id];
+    if(!s) return `<tr><td style="color:#A32D2D;font-style:italic;">${item.title}</td><td style="text-align:center;color:#A32D2D;">–</td><td style="text-align:center;color:#A32D2D;">–</td><td style="font-size:11px;color:#A32D2D;font-style:italic;">nicht bewertet</td></tr>`;
+    const n=SCALE[s.noteIdx];
+    return `<tr><td>${item.title}</td><td style="text-align:center;font-weight:600;">Note ${n.note}</td><td style="text-align:center;font-weight:600;">${s.pts} P.</td><td style="font-size:11px;color:#555;">${item.indicators[s.noteIdx]}</td></tr>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Worturteil Mündliche Prüfung – ${name}</title>
+<style>body{font-family:Arial,sans-serif;margin:2cm;font-size:13px;color:#1a1a1a;}h1{font-size:20px;font-weight:700;margin-bottom:4px;}h2{font-size:14px;font-weight:600;margin:20px 0 8px;border-bottom:1px solid #ccc;padding-bottom:4px;}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin:12px 0 20px;font-size:12px;}.meta-item{display:flex;gap:8px;}.meta-label{color:#666;min-width:90px;}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px;}th{background:#5A3E8E;color:#fff;padding:8px;text-align:left;}td{padding:6px 8px;border:1px solid #ddd;}tr:nth-child(even)td{background:#fafafa;}
+.note-box{background:#f3f0fa;border:2px solid #5A3E8E;border-radius:8px;padding:16px;text-align:center;margin:16px 0;}.note-big{font-size:36px;font-weight:700;color:#5A3E8E;}.worturteil{line-height:1.9;white-space:pre-wrap;font-size:13px;}
+.footer{margin-top:40px;border-top:1px solid #ccc;padding-top:12px;font-size:11px;color:#888;}.sig{display:flex;justify-content:space-between;margin-top:40px;}
+@media print{body{margin:1.5cm;}}</style></head><body>
+<h1>Worturteil – Mündliche Prüfung</h1>
+<p style="color:#666;font-size:12px;">Staatliches Studienseminar für Lehramtsausbildung Thüringen · Lehramt Grundschule</p>
+<div class="meta">
+<div class="meta-item"><span class="meta-label">Name LAA:</span><strong>${name}</strong></div>
+<div class="meta-item"><span class="meta-label">Datum:</span><strong>${datum}</strong></div>
+<div class="meta-item"><span class="meta-label">Thema:</span><strong>${thema}</strong></div>
+<div class="meta-item"><span class="meta-label">Fach:</span><strong>${fach}</strong></div>
+</div>
+${noteObj?`<div class="note-box"><div class="note-big">Note ${noteObj.note} – ${noteObj.word}</div>
+<div style="color:#555;font-size:13px;margin-top:4px;">${noteObj.pts} Punkte · Ø ${roundHalf(gesamtPts)} Punkte</div>
+<div style="color:#777;font-size:12px;margin-top:6px;">Fachlichkeit: ${fAvg!==null?fAvg.toFixed(1):'–'} · Kommunikation: ${kAvg!==null?kAvg.toFixed(1):'–'} · Reflexion: ${rAvg!==null?rAvg.toFixed(1):'–'} · Innovation: ${iAvg!==null?iAvg.toFixed(1):'–'}</div>
+</div>`:''}
+<h2>Bewertungsübersicht</h2>
+<table><tr><th>Kriterium</th><th style="width:70px;">Note</th><th style="width:60px;">Punkte</th><th>Indikator (wörtlich)</th></tr>
+<tr><td colspan="4" style="background:#ede8fa;font-weight:700;font-size:12px;">Fachlichkeit</td></tr>${tableRows(CRITERIA.fachlichkeit)}
+<tr><td colspan="4" style="background:#ede8fa;font-weight:700;font-size:12px;">Kommunikation</td></tr>${tableRows(CRITERIA.kommunikation)}
+<tr><td colspan="4" style="background:#ede8fa;font-weight:700;font-size:12px;">Reflexion</td></tr>${tableRows(CRITERIA.reflexion)}
+<tr><td colspan="4" style="background:#ede8fa;font-weight:700;font-size:12px;">Innovation</td></tr>${tableRows(CRITERIA.innovation)}
+</table>
+${HF?`<h2>Handlungsfeld ${esc(HF.nummer)} – ${esc(HF.titel)}</h2>${HF.untertitel?`<p style="font-size:12px;color:#666;margin:-4px 0 10px;">${esc(HF.untertitel)}</p>`:''}` : ''}
+${hfExportTabelle('Handlungssituationen',HS)}
+${hfExportTabelle('Erschließungsfragen',EF)}
+${hfExportTabelle('Inhaltliche Bezüge',IB)}
+${hfExportTabelle('Literatur der LAA',LIT)}
+${uhr.log.length?`<h2>Protokoll</h2>
+<table><tr><th style="width:70px;">Zeit</th><th>Eintrag</th></tr>
+${uhr.log.map(e=>`<tr><td>${esc(e.time)}</td><td>${esc(e.text)}</td></tr>`).join('')}
+</table>`:''}
+<h2>Worturteil</h2><div class="worturteil">${worturteil.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+<div class="footer"><div class="sig"><div>Datum: ___________________</div><div>Unterschrift Fachleiter:in: ___________________</div></div>
+<div style="margin-top:8px;">Standardisiertes Leistungsbild zur mündlichen Prüfung · Landesprüfungsamt für Lehrämter Thüringen · Stand 13.12.13</div></div>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const win=window.open(url,'_blank');
+  if(win) win.onload=()=>setTimeout(()=>win.print(),600);
+}
+
+/* ==================================================================
+   Live-Beobachtung: Handlungsfeld, Häkchen, Kommentare, Protokoll
+   ================================================================== */
+let HF = null;                 // importiertes Handlungsfeld
+let HS = [], EF = [], IB = [], LIT = [];   // Einträge mit Haken und Kommentar
+const uhr = { start: null, handle: null, log: [] };
+
+function hfExportTabelle(titel, arr){
+  if(!arr || !arr.length) return '';
+  const n=arr.filter(x=>x.haken).length;
+  return `<h2>${titel} <span style="font-weight:400;font-size:12px;color:#666;">(${n} von ${arr.length} angesprochen)</span></h2>
+<table><tr><th style="width:34px;"></th><th>Eintrag</th><th style="width:38%;">Kommentar</th></tr>
+${arr.map(e=>`<tr><td style="text-align:center;">${e.haken?'&#10003;':''}</td><td>${esc(e.text)}</td><td style="font-size:11px;">${esc(e.kommentar||'')}</td></tr>`).join('')}
+</table>`;
+}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(t){return esc(t).replace(/"/g,'&quot;');}
+
+function importMeldung(text, ok){
+  const el=document.getElementById('importStatus');
+  el.className='import-status shown '+(ok?'ok':'err');
+  el.textContent=text;
+}
+
+function hfDateiLesen(file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>hfAnwenden(e.target.result);
+  r.onerror=()=>importMeldung('Datei konnte nicht gelesen werden.',false);
+  r.readAsText(file);
+}
+function hfAusFeld(){
+  const t=document.getElementById('importPaste').value.trim();
+  if(!t){importMeldung('Das Einfügefeld ist leer.',false);return;}
+  hfAnwenden(t);
+}
+
+function hfAnwenden(roh){
+  let d;
+  try{ d=JSON.parse(roh); }
+  catch(e){ importMeldung('Kein gültiges JSON: '+e.message,false); return; }
+
+  const erledigt=[];
+  if(d.meta){
+    ['laaName','fachThema','klasse','datum'].forEach(k=>{
+      if(d.meta[k]){const el=document.getElementById(k); if(el) el.value=d.meta[k];}
+    });
+    erledigt.push('Kopfdaten');
+  }
+  const f=d.handlungsfeld;
+  if(f){
+    HF={nummer:f.nummer||'',titel:f.titel||'',untertitel:f.untertitel||'',fachgruppe:f.fachgruppe||''};
+    HS=(f.handlungssituationen||[]).map(t=>({text:String(t),haken:false,kommentar:''}));
+    EF=(f.erschliessungsfragen||[]).map(t=>({text:String(t),haken:false,kommentar:''}));
+    IB=(f.inhaltlicheBezuege||[]).map(t=>({text:String(t),haken:false,kommentar:''}));
+    erledigt.push('Handlungsfeld '+(f.nummer||''));
+  }
+  if(Array.isArray(d.laaLiteratur)){
+    LIT=d.laaLiteratur.map(t=>({text:String(t),haken:false,kommentar:''}));
+    if(LIT.length) erledigt.push(LIT.length+' Literaturangaben');
+  }
+  if(!erledigt.length){
+    importMeldung('JSON gelesen, aber keine bekannten Felder gefunden (meta, handlungsfeld, laaLiteratur).',false);
+    return;
+  }
+  hfRender(); standSichern();
+  importMeldung('Importiert: '+erledigt.join(' · ')+'. Bewertungen wurden nicht verändert.',true);
+}
+
+let nurMarkiert=false;
+function istMarkiert(e){ return e.haken || (e.kommentar && e.kommentar.trim()); }
+
+function listeRender(arr, containerId, feldName, zaehlerId){
+  const c=document.getElementById(containerId);
+  if(!c) return;
+  if(!arr.length){ c.innerHTML='<span class="leer">Noch nichts importiert.</span>';
+                   document.getElementById(zaehlerId).textContent=''; return; }
+  const sichtbar=arr.map((e,i)=>({e,i})).filter(x=>!nurMarkiert || istMarkiert(x.e));
+  if(!sichtbar.length){
+    c.innerHTML='<span class="leer">Hier ist noch nichts gekennzeichnet.</span>';
+    document.getElementById(zaehlerId).textContent=arr.filter(x=>x.haken).length+' von '+arr.length+' angesprochen';
+    return;
+  }
+  c.innerHTML=sichtbar.map(({e,i})=>`
+    <div class="hf-item${e.haken?' erledigt':''}">
+      <div class="hf-zeile">
+        <input type="checkbox" ${e.haken?'checked':''} onchange="${feldName}[${i}].haken=this.checked; hfRender(); standSichern();">
+        <div class="hf-text">${esc(e.text)}${e.eigen?' <span class="eigen-marke">eigener Eintrag</span> <span class="eigen-weg" onclick="eintragEntfernen(\''+feldName+'\','+i+')">entfernen</span>':''}</div>
+      </div>
+      <textarea class="hf-kommentar" placeholder="Kommentar" oninput="${feldName}[${i}].kommentar=this.value; standSichern();">${esc(e.kommentar)}</textarea>
+    </div>`).join('');
+  const n=arr.filter(x=>x.haken).length;
+  document.getElementById(zaehlerId).textContent=n+' von '+arr.length+' angesprochen';
+}
+
+function hfKopfRender(){
+  const c=document.getElementById('hfKopf');
+  if(!HF){ c.innerHTML=''; return; }
+  c.innerHTML=`<div class="hf-kopf">
+    <div class="nr">Handlungsfeld ${esc(HF.nummer)}</div>
+    <div class="titel">${esc(HF.titel)}</div>
+    ${HF.untertitel?`<div class="unter">${esc(HF.untertitel)}</div>`:''}
+    ${HF.fachgruppe?`<div class="unter" style="margin-top:4px;">${esc(HF.fachgruppe)}</div>`:''}
+  </div>`;
+}
+
+function hfRender(){
+  hfKopfRender();
+  const hw=document.getElementById('filterHinweis');
+  if(hw){
+    const alle=[...HS,...EF,...IB,...LIT];
+    const m=alle.filter(istMarkiert).length;
+    hw.textContent = alle.length ? (nurMarkiert
+        ? m+' von '+alle.length+' Einträgen sichtbar'
+        : 'Häkchen oder Kommentar zählt als gekennzeichnet') : '';
+  }
+  listeRender(HS,'listeHS','HS','zaehlerHS');
+  listeRender(EF,'listeEF','EF','zaehlerEF');
+  listeRender(IB,'listeIB','IB','zaehlerIB');
+  listeRender(LIT,'listeLit','LIT','zaehlerLit');
+  protokollRender();
+}
+
+function eintragHinzu(feld,inputId){
+  const f=document.getElementById(inputId);
+  const t=f.value.trim();
+  if(!t) return;
+  const ziel={HS:HS,EF:EF,IB:IB,LIT:LIT}[feld];
+  if(!ziel) return;
+  ziel.push({text:t,haken:true,kommentar:'',eigen:true});
+  f.value='';
+  if(nurMarkiert){ /* eigener Eintrag ist gekennzeichnet und bleibt sichtbar */ }
+  hfRender(); standSichern();
+}
+function litHinzu(){ eintragHinzu('LIT','litNeu'); }
+function eintragEntfernen(feld,i){
+  const ziel={HS:HS,EF:EF,IB:IB,LIT:LIT}[feld];
+  if(!ziel||!ziel[i]||!ziel[i].eigen) return;
+  if(!confirm('Eigenen Eintrag entfernen?')) return;
+  ziel.splice(i,1);
+  hfRender(); standSichern();
+}
+
+/* ---------------- Uhr und Protokoll ---------------- */
+function zeitJetzt(){
+  const d=new Date();
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+}
+function uhrTick(){
+  if(!uhr.start) return;
+  const sek=Math.round((Date.now()-uhr.start)/1000);
+  document.getElementById('liveUhr').textContent=
+    String(Math.floor(sek/60)).padStart(2,'0')+':'+String(sek%60).padStart(2,'0');
+}
+function uhrStart(){
+  if(uhr.handle) return;
+  uhr.start=Date.now();
+  uhr.handle=setInterval(uhrTick,500);
+  document.getElementById('liveHinweis').textContent='Uhr läuft seit '+zeitJetzt();
+  uhr.log.push({time:zeitJetzt(),text:'Prüfung begonnen'});
+  protokollRender(); standSichern();
+}
+function uhrStop(){
+  if(!uhr.handle) return;
+  clearInterval(uhr.handle); uhr.handle=null;
+  const sek=Math.round((Date.now()-uhr.start)/1000);
+  uhr.log.push({time:zeitJetzt(),text:'Prüfung beendet nach '+Math.floor(sek/60)+' Min. '+(sek%60)+' Sek.'});
+  uhr.start=null;
+  document.getElementById('liveHinweis').textContent='Uhr gestoppt.';
+  protokollRender(); standSichern();
+}
+function notizErfassen(){
+  const f=document.getElementById('notizFeld');
+  const t=f.value.trim();
+  if(!t) return;
+  uhr.log.push({time:zeitJetzt(),text:t});
+  f.value='';
+  protokollRender(); standSichern();
+}
+function protokollRender(){
+  const c=document.getElementById('protokoll');
+  if(!c) return;
+  if(!uhr.log.length){ c.innerHTML='<span class="leer">Noch keine Einträge.</span>'; return; }
+  c.innerHTML=uhr.log.slice().reverse().map(e=>
+    `<div class="protokoll-eintrag"><span class="ts">${esc(e.time)}</span>${esc(e.text)}</div>`).join('');
+}
+
+/* ---------------- Datenverlustschutz ---------------- */
+const MP_PREFIX='mp_pruefung:';
+const MP_AKTIV='mp_pruefung_aktiv';
+let aktiveId=null;
+let sicherTimer=null;
+
+function neueId(){return 'm'+Date.now().toString(36);}
+function mpKey(id){return MP_PREFIX+id;}
+
+function alleAkten(){
+  const l=[];
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(!k||!k.startsWith(MP_PREFIX)) continue;
+      try{
+        const d=JSON.parse(localStorage.getItem(k));
+        l.push({id:k.slice(MP_PREFIX.length),savedAt:d.savedAt||'',meta:d.meta||{},HF:d.HF||null});
+      }catch(e){}
+    }
+  }catch(e){}
+  l.sort((a,b)=>(b.savedAt||'').localeCompare(a.savedAt||''));
+  return l;
+}
+function akteName(a){
+  const n=(a.meta.laaName||'').trim();
+  const d=(a.meta.datum||'').trim();
+  let t=n||'Ohne Namen';
+  if(d){const p=d.split('-'); if(p.length===3) t+=' · '+p[2]+'.'+p[1]+'.'+p[0];}
+  if(a.HF&&a.HF.nummer) t+=' · HF '+a.HF.nummer;
+  return t;
+}
+function renderAktenwahl(){
+  const sel=document.getElementById('akteWahl');
+  if(!sel) return;
+  const l=alleAkten();
+  if(!l.some(a=>a.id===aktiveId)) l.unshift({id:aktiveId,savedAt:'',meta:{},HF:null});
+  sel.innerHTML=l.map(a=>`<option value="${a.id}"${a.id===aktiveId?' selected':''}>${esc(akteName(a))}</option>`).join('');
+  const z=document.getElementById('akteAnzahl');
+  if(z) z.textContent=l.length===1?'1 Prüfung gespeichert':l.length+' Prüfungen gespeichert';
+}
+function akteWechseln(id){ standSofortSichern(); aktiveId=id;
+  try{localStorage.setItem(MP_AKTIV,id);}catch(e){} location.reload(); }
+function akteNeu(){ standSofortSichern(); aktiveId=neueId();
+  try{localStorage.setItem(MP_AKTIV,aktiveId);}catch(e){} location.reload(); }
+function akteLoeschen(){
+  const a=alleAkten().find(x=>x.id===aktiveId);
+  if(!confirm('Prüfung „'+(a?akteName(a):'diese Prüfung')+'" unwiderruflich löschen? Andere Prüfungen bleiben erhalten.')) return;
+  try{localStorage.removeItem(mpKey(aktiveId));}catch(e){}
+  const rest=alleAkten();
+  aktiveId=rest.length?rest[0].id:neueId();
+  try{localStorage.setItem(MP_AKTIV,aktiveId);}catch(e){}
+  location.reload();
+}
+
+/* ---- Sicherungsdatei ---- */
+function standObjekt(){
+  const meta={};
+  ['laaName','fachThema','klasse','datum'].forEach(k=>{
+    const el=document.getElementById(k); if(el) meta[k]=el.value;
+  });
+  return {savedAt:new Date().toISOString(),meta,scores,HF,HS,EF,IB,LIT,log:uhr.log,
+          worturteilEdit:(document.getElementById('worturteilEdit')||{}).value||''};
+}
+function sicherungDateiName(){
+  const n=(document.getElementById('laaName').value||'Pruefung').trim()
+            .replace(/[^A-Za-z0-9ÄÖÜäöüß -]/g,'').replace(/\s+/g,'_');
+  const d=(document.getElementById('datum').value||'').trim();
+  return 'Sicherung_MP_'+n+(d?'_'+d:'')+'.json';
+}
+function sicherungExport(){
+  const daten=standObjekt(); daten.formatVersion='mp-sicherung-1';
+  const text=JSON.stringify(daten,null,2);
+  try{
+    const blob=new Blob([text],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=sicherungDateiName();
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+  }catch(e){
+    const f=document.getElementById('importPaste');
+    if(f){f.value=text; showView('live');}
+    alert('Der Download ist hier nicht möglich. Die Sicherung steht zum Kopieren im Einfügefeld unter Live-Beobachtung.');
+  }
+}
+function sicherungDateiLesen(file){
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>sicherungEinlesen(e.target.result);
+  r.onerror=()=>alert('Die Datei konnte nicht gelesen werden.');
+  r.readAsText(file);
+}
+function sicherungEinlesen(roh){
+  let d; try{ d=JSON.parse(roh); }catch(e){ alert('Kein gültiges JSON: '+e.message); return; }
+  if(!d||!d.meta||!d.scores){
+    alert('Das ist keine Sicherungsdatei dieser App. Ein Handlungsfeld wird unter Live-Beobachtung eingelesen.');
+    return;
+  }
+  const bez=(d.meta.laaName||'ohne Namen')+(d.meta.datum?', '+d.meta.datum:'');
+  if(!confirm('Sicherung von „'+bez+'" als neue Prüfung anlegen? Der aktuelle Stand bleibt erhalten.')) return;
+  standSofortSichern();
+  const neu=neueId();
+  try{ localStorage.setItem(mpKey(neu),JSON.stringify(d)); localStorage.setItem(MP_AKTIV,neu); }
+  catch(e){ alert('Die Sicherung konnte nicht gespeichert werden.'); return; }
+  location.reload();
+}
+function standSofortSichern(){
+  try{ localStorage.setItem(mpKey(aktiveId),JSON.stringify(standObjekt())); }catch(e){}
+}
+function standSichern(){
+  clearTimeout(sicherTimer);
+  sicherTimer=setTimeout(()=>{ standSofortSichern(); renderAktenwahl(); },400);
+}
+function standLaden(){
+  let roh=null;
+  try{ roh=localStorage.getItem(mpKey(aktiveId)); }catch(e){ return false; }
+  if(!roh) return false;
+  let d; try{ d=JSON.parse(roh); }catch(e){ return false; }
+  if(d.meta) ['laaName','fachThema','klasse','datum'].forEach(k=>{
+    const el=document.getElementById(k); if(el&&d.meta[k]!==undefined) el.value=d.meta[k];
+  });
+  if(d.scores) Object.keys(d.scores).forEach(id=>{
+    scores[id]=d.scores[id];
+    try{ renderCriterion(id,d.scores[id].section); }catch(e){}
+  });
+  HF=d.HF||null;
+  HS=d.HS||[]; EF=d.EF||[]; IB=d.IB||[]; LIT=d.LIT||[];
+  if(Array.isArray(d.log)) uhr.log=d.log;
+  if(d.worturteilEdit){const el=document.getElementById('worturteilEdit'); if(el) el.value=d.worturteilEdit;}
+  ['fachlichkeit','kommunikation','reflexion','innovation'].forEach(sec=>{try{updateBadge(sec);}catch(e){}});
+  try{ updateProgress(); }catch(e){}
+  return true;
+}
+
+
+document.addEventListener('input',standSichern);
+document.addEventListener('change',standSichern);
+window.addEventListener('beforeunload',()=>{clearTimeout(sicherTimer);standSichern();});
+
+(function(){
+  const drop=document.getElementById('importDrop');
+  if(!drop) return;
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();}));
+  drop.addEventListener('drop',e=>{
+    e.preventDefault();e.stopPropagation();
+    const f=e.dataTransfer.files&&e.dataTransfer.files[0];
+    if(f) hfDateiLesen(f);
+  });
+})();
+
+buildCriteria('fachlichkeit',CRITERIA.fachlichkeit);
+buildCriteria('kommunikation',CRITERIA.kommunikation);
+buildCriteria('reflexion',CRITERIA.reflexion);
+buildCriteria('innovation',CRITERIA.innovation);
+try{ aktiveId=localStorage.getItem(MP_AKTIV); }catch(e){}
+if(!aktiveId){
+  const v=alleAkten();
+  aktiveId=v.length?v[0].id:neueId();
+  try{ localStorage.setItem(MP_AKTIV,aktiveId); }catch(e){}
+}
+const wiederhergestellt=standLaden();
+if(!wiederhergestellt) document.getElementById('datum').value=new Date().toISOString().split('T')[0];
+renderAktenwahl();
+hfRender();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});
+}
+</script>
+</body></html>
