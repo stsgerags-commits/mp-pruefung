@@ -2,7 +2,7 @@
    Zwischengespeichert wird ausschließlich die Anwendung selbst.
    Prüfungsdaten liegen im localStorage und werden hier nicht berührt. */
 
-const CACHE = 'mp-pruefung-v3';
+const CACHE = 'mp-pruefung-v4';
 const ASSETS = [
   './',
   './index.html',
