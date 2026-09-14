@@ -126,6 +126,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
 .panel-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#5A3E8E; margin-bottom:12px; }
 .eigen-marke { display:inline-block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; background:#ede8fa; color:#5A3E8E; border-radius:9px; padding:1px 7px; margin-left:4px; vertical-align:2px; }
 .eigen-weg { font-size:11px; color:#a05050; cursor:pointer; text-decoration:underline; margin-left:4px; }
+.export-option { display:flex; gap:8px; align-items:center; font-size:13px; cursor:pointer; margin:0 0 10px; padding:10px 12px; background:#faf9fd; border:1px solid #e8e4f2; border-radius:8px; }
+.export-option input { width:17px; height:17px; accent-color:#5A3E8E; }
 .filter-leiste { display:flex; gap:10px; align-items:center; background:#fff; border:1px solid #e8e8e8; border-radius:10px; padding:10px 14px; margin-bottom:14px; flex-wrap:wrap; }
 .filter-schalter { display:flex; gap:8px; align-items:center; font-size:13px; cursor:pointer; }
 .filter-schalter input { width:17px; height:17px; accent-color:#5A3E8E; }
@@ -272,6 +274,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
       <textarea class="worturteil-edit" id="worturteilEdit" style="display:none"></textarea>
       <span class="toggle-edit" onclick="toggleEdit()">Worturteil bearbeiten</span>
     </div>
+    <label class="export-option">
+      <input type="checkbox" id="pdfNurMarkiert">
+      <span>Im PDF nur Gekennzeichnetes aufführen</span>
+    </label>
     <button class="btn-primary btn-export" onclick="exportPDF()">&#8659; Als PDF speichern</button>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
       <button class="btn-klein" style="flex:1;" onclick="sicherungExport()">Sicherungsdatei erzeugen</button>
@@ -649,6 +655,7 @@ ${noteObj?`<div class="note-box"><div class="note-big">Note ${noteObj.note} – 
 <tr><td colspan="4" style="background:#ede8fa;font-weight:700;font-size:12px;">Innovation</td></tr>${tableRows(CRITERIA.innovation)}
 </table>
 ${HF?`<h2>Handlungsfeld ${esc(HF.nummer)} – ${esc(HF.titel)}</h2>${HF.untertitel?`<p style="font-size:12px;color:#666;margin:-4px 0 10px;">${esc(HF.untertitel)}</p>`:''}` : ''}
+${(document.getElementById('pdfNurMarkiert')||{}).checked?`<p style="font-size:11px;color:#777;font-style:italic;margin:8px 0 14px;">Verkürzte Fassung: aufgeführt sind nur Einträge mit Häkchen oder Kommentar. Die Zählung in den Überschriften bezieht sich auf das vollständige Handlungsfeld.</p>`:''}
 ${hfExportTabelle('Handlungssituationen',HS)}
 ${hfExportTabelle('Erschließungsfragen',EF)}
 ${hfExportTabelle('Inhaltliche Bezüge',IB)}
@@ -677,10 +684,13 @@ const uhr = { start: null, handle: null, log: [] };
 
 function hfExportTabelle(titel, arr){
   if(!arr || !arr.length) return '';
+  const nurMark=(document.getElementById('pdfNurMarkiert')||{}).checked;
   const n=arr.filter(x=>x.haken).length;
+  const zeilen=nurMark?arr.filter(istMarkiert):arr;
+  if(nurMark && !zeilen.length) return '';
   return `<h2>${titel} <span style="font-weight:400;font-size:12px;color:#666;">(${n} von ${arr.length} angesprochen)</span></h2>
 <table><tr><th style="width:34px;"></th><th>Eintrag</th><th style="width:38%;">Kommentar</th></tr>
-${arr.map(e=>`<tr><td style="text-align:center;">${e.haken?'&#10003;':''}</td><td>${esc(e.text)}</td><td style="font-size:11px;">${esc(e.kommentar||'')}</td></tr>`).join('')}
+${zeilen.map(e=>`<tr><td style="text-align:center;">${e.haken?'&#10003;':''}</td><td>${esc(e.text)}${e.eigen?' <span style="font-size:10px;color:#5A3E8E;">(eigener Eintrag)</span>':''}</td><td style="font-size:11px;">${esc(e.kommentar||'')}</td></tr>`).join('')}
 </table>`;
 }
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
