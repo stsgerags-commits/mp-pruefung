@@ -380,6 +380,67 @@ const NOTE_COLORS = {
 };
 const scores = {};
 
+/* ------------------------------------------------------------------
+   Worturteil aus den tatsächlich vergebenen Einzelnoten erzeugen.
+   Jeder Satz besteht aus dem Kriteriums-Präfix und dem wörtlichen
+   Indikator der vergebenen Note, ins Präteritum gesetzt. Damit kann
+   der Text nicht mehr von der Bewertungstabelle abweichen.
+   ------------------------------------------------------------------ */
+const VERB_PRAET = { 'wird':'wurde', 'werden':'wurden', 'gelingt':'gelang', 'reagiert':'reagierte' };
+
+function insPraeteritum(satz){
+  const teile=satz.split(' ');
+  const ersatz=VERB_PRAET[teile[0]];
+  if(ersatz){ teile[0]=ersatz; return teile.join(' '); }
+  return satz;
+}
+
+function satzFuer(krit, name){
+  const sc=scores[krit.id];
+  if(!sc) return null;
+  const ind=krit.indicators[sc.note-1];
+  if(!ind) return null;
+  /* Indikatoren mit 'reagiert' setzen die LAA als Subjekt voraus,
+     nicht das Kriterium — daher eigene Satzform. */
+  if(ind.split(' ')[0]==='reagiert'){
+    const rest=ind.split(' ').slice(1).join(' ');
+    return 'Auf Fragen und Impulse reagierte '+name+' '+rest+'.';
+  }
+  return krit.prefix+' '+insPraeteritum(ind)+'.';
+}
+
+function absatzFuer(bereich, name){
+  const saetze=CRITERIA[bereich].map(k=>satzFuer(k,name)).filter(Boolean);
+  return saetze.length?saetze.join(' '):null;
+}
+
+const EINLEITUNG = {
+  1:'eine Leistung, die den Anforderungen in besonderem Maße entspricht',
+  2:'eine Leistung, die den Anforderungen voll entspricht',
+  3:'eine Leistung, die im Allgemeinen den Anforderungen entspricht',
+  4:'eine Leistung, die zwar Mängel aufweist, aber im Ganzen den Anforderungen noch entspricht',
+  5:'eine Leistung, die den Anforderungen nicht entspricht, jedoch erkennen lässt, dass die notwendigen Grundkenntnisse vorhanden sind und die Mängel in absehbarer Zeit behoben werden könnten',
+  6:'eine Leistung, die den Anforderungen nicht entspricht und bei der selbst die Grundkenntnisse so lückenhaft sind, dass die Mängel in absehbarer Zeit nicht behoben werden können'
+};
+const NOTENWORT = {1:'sehr gut',2:'gut',3:'befriedigend',4:'ausreichend',5:'mangelhaft',6:'ungenügend'};
+const BEREICH_LABEL = {
+  fachlichkeit:'In der Anforderungsdimension Fachlichkeit:',
+  kommunikation:'In der Anforderungsdimension Kommunikation:',
+  reflexion:'In der Anforderungsdimension Reflexion:',
+  innovation:'In der Anforderungsdimension Innovation:'
+};
+
+function worturteilBauen(name,thema,fach,noteNum){
+  const teile=[];
+  teile.push(name+' zeigte in der Mündlichen Prüfung zum Thema '+thema+' ('+fach+') '+EINLEITUNG[noteNum]+'.');
+  ['fachlichkeit','kommunikation','reflexion','innovation'].forEach(b=>{
+    const a=absatzFuer(b,name);
+    if(a) teile.push(BEREICH_LABEL[b]+' '+a);
+  });
+  teile.push('Die gezeigte Leistung entspricht der Note '+noteNum+' ('+NOTENWORT[noteNum]+').');
+  return teile.join('\n\n');
+}
+
 const WORTURTEIL = {
   1:(n,t,f)=>`${n} zeigte in der Mündlichen Prüfung zum Thema ${t} (${f}) eine Leistung, die den Anforderungen in besonderem Maße entspricht.
 
@@ -604,7 +665,7 @@ function buildErgebnis() {
   const we=document.getElementById('worturteilEdit');
   if(gesamtPts!==null){
     const noteNum=getNote(roundHalf(gesamtPts)).note;
-    const text=WORTURTEIL[noteNum](name,thema,fach);
+    const text=worturteilBauen(name,thema,fach,noteNum);
     wt.textContent=text;we.value=text;
   } else {wt.textContent='Bitte zunächst alle Kriterien bewerten.';}
 }
@@ -634,7 +695,7 @@ function exportPDF() {
 table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px;}th{background:#5A3E8E;color:#fff;padding:8px;text-align:left;}td{padding:6px 8px;border:1px solid #ddd;}tr:nth-child(even)td{background:#fafafa;}
 .note-box{background:#f3f0fa;border:2px solid #5A3E8E;border-radius:8px;padding:16px;text-align:center;margin:16px 0;}.note-big{font-size:36px;font-weight:700;color:#5A3E8E;}.worturteil{line-height:1.9;white-space:pre-wrap;font-size:13px;}
 .footer{margin-top:40px;border-top:1px solid #ccc;padding-top:12px;font-size:11px;color:#888;}.sig{display:flex;justify-content:space-between;margin-top:40px;}
-@media print{body{margin:1.5cm;}}</style></head><body>
+@media print{body{margin:0;}@page{margin:1.5cm;}h2{page-break-after:avoid;}table{page-break-inside:auto;}tr{page-break-inside:avoid;}.worturteil{page-break-inside:avoid;}}</style></head><body>
 <h1>Worturteil – Mündliche Prüfung</h1>
 <p style="color:#666;font-size:12px;">Staatliches Studienseminar für Lehramtsausbildung Thüringen · Lehramt Grundschule</p>
 <div class="meta">
@@ -688,9 +749,10 @@ function hfExportTabelle(titel, arr){
   const n=arr.filter(x=>x.haken).length;
   const zeilen=nurMark?arr.filter(istMarkiert):arr;
   if(nurMark && !zeilen.length) return '';
+  const hatKomm=zeilen.some(e=>e.kommentar && e.kommentar.trim());
   return `<h2>${titel} <span style="font-weight:400;font-size:12px;color:#666;">(${n} von ${arr.length} angesprochen)</span></h2>
-<table><tr><th style="width:34px;"></th><th>Eintrag</th><th style="width:38%;">Kommentar</th></tr>
-${zeilen.map(e=>`<tr><td style="text-align:center;">${e.haken?'&#10003;':''}</td><td>${esc(e.text)}${e.eigen?' <span style="font-size:10px;color:#5A3E8E;">(eigener Eintrag)</span>':''}</td><td style="font-size:11px;">${esc(e.kommentar||'')}</td></tr>`).join('')}
+<table><tr><th style="width:34px;"></th><th>Eintrag</th>${hatKomm?'<th style="width:34%;">Kommentar</th>':''}</tr>
+${zeilen.map(e=>`<tr><td style="text-align:center;">${e.haken?'&#10003;':''}</td><td>${esc(e.text)}${e.eigen?' <span style="font-size:10px;color:#5A3E8E;">(eigener Eintrag)</span>':''}</td>${hatKomm?`<td style="font-size:11px;">${esc(e.kommentar||'')}</td>`:''}</tr>`).join('')}
 </table>`;
 }
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
