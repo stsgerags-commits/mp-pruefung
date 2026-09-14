@@ -386,15 +386,8 @@ const scores = {};
    Indikator der vergebenen Note, ins Präteritum gesetzt. Damit kann
    der Text nicht mehr von der Bewertungstabelle abweichen.
    ------------------------------------------------------------------ */
-const VERB_PRAET = { 'wird':'wurde', 'werden':'wurden', 'gelingt':'gelang', 'reagiert':'reagierte' };
-
-function insPraeteritum(satz){
-  const teile=satz.split(' ');
-  const ersatz=VERB_PRAET[teile[0]];
-  if(ersatz){ teile[0]=ersatz; return teile.join(' '); }
-  return satz;
-}
-
+/* Die Indikatoren werden im Wortlaut des Leistungsbilds übernommen,
+   also im Präsens — wie in der App zur praktischen Prüfung. */
 function satzFuer(krit, name){
   const sc=scores[krit.id];
   if(!sc) return null;
@@ -404,9 +397,9 @@ function satzFuer(krit, name){
      nicht das Kriterium — daher eigene Satzform. */
   if(ind.split(' ')[0]==='reagiert'){
     const rest=ind.split(' ').slice(1).join(' ');
-    return 'Auf Fragen und Impulse reagierte '+name+' '+rest+'.';
+    return 'Auf Fragen und Impulse reagiert '+name+' '+rest+'.';
   }
-  return krit.prefix+' '+insPraeteritum(ind)+'.';
+  return krit.prefix+' '+ind+'.';
 }
 
 function absatzFuer(bereich, name){
@@ -432,7 +425,7 @@ const BEREICH_LABEL = {
 
 function worturteilBauen(name,thema,fach,noteNum){
   const teile=[];
-  teile.push(name+' zeigte in der Mündlichen Prüfung zum Thema '+thema+' ('+fach+') '+EINLEITUNG[noteNum]+'.');
+  teile.push(name+' zeigt in der Mündlichen Prüfung zum Thema '+thema+' ('+fach+') '+EINLEITUNG[noteNum]+'.');
   ['fachlichkeit','kommunikation','reflexion','innovation'].forEach(b=>{
     const a=absatzFuer(b,name);
     if(a) teile.push(BEREICH_LABEL[b]+' '+a);
