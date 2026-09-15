@@ -688,7 +688,13 @@ function exportPDF() {
 table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px;}th{background:#5A3E8E;color:#fff;padding:8px;text-align:left;}td{padding:6px 8px;border:1px solid #ddd;}tr:nth-child(even)td{background:#fafafa;}
 .note-box{background:#f3f0fa;border:2px solid #5A3E8E;border-radius:8px;padding:16px;text-align:center;margin:16px 0;}.note-big{font-size:36px;font-weight:700;color:#5A3E8E;}.worturteil{line-height:1.9;white-space:pre-wrap;font-size:13px;}
 .footer{margin-top:40px;border-top:1px solid #ccc;padding-top:12px;font-size:11px;color:#888;}.sig{display:flex;justify-content:space-between;margin-top:40px;}
-@media print{body{margin:0;}@page{margin:1.5cm;}h2{page-break-after:avoid;}table{page-break-inside:auto;}tr{page-break-inside:avoid;}.worturteil{page-break-inside:avoid;}}</style></head><body>
+.druckleiste{position:sticky;top:0;background:#fff;border-bottom:1px solid #ddd;padding:10px 0 12px;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}.druckleiste button{padding:9px 16px;font-size:14px;border:none;border-radius:8px;background:#5A3E8E;color:#fff;cursor:pointer;}.druckleiste span{font-size:12px;color:#666;}@media print{body{margin:0;}@page{margin:1.5cm;}h2{page-break-after:avoid;}table{page-break-inside:auto;}tr{page-break-inside:avoid;}.worturteil{page-break-inside:avoid;}}.no-print{}@media print{.no-print{display:none !important;}}</style></head><body>
+<div class="druckleiste no-print">
+  <button onclick="window.print()">Drucken / In Dateien sichern</button>
+  <span>Im Druckdialog auf „In Dateien sichern“ oder „PDF“ wählen.</span>
+</div>
+<script>window.addEventListener('load', function(){ setTimeout(function(){ try{ window.print(); }catch(e){} }, 400); });<\/script>
+
 <h1>Worturteil – Mündliche Prüfung</h1>
 <p style="color:#666;font-size:12px;">Staatliches Studienseminar für Lehramtsausbildung Thüringen · Lehramt Grundschule</p>
 <div class="meta">
@@ -723,10 +729,14 @@ ${uhr.log.map(e=>`<tr><td>${esc(e.time)}</td><td>${esc(e.text)}</td></tr>`).join
 <div style="margin-top:8px;">Standardisiertes Leistungsbild zur mündlichen Prüfung · Landesprüfungsamt für Lehrämter Thüringen · Stand 13.12.13</div></div>
 </body></html>`;
 
-  const blob=new Blob([html],{type:'text/html'});
-  const url=URL.createObjectURL(blob);
-  const win=window.open(url,'_blank');
-  if(win) win.onload=()=>setTimeout(()=>win.print(),600);
+  /* Der Inhalt wird direkt in das neue Fenster geschrieben. Eine
+     blob:-Adresse wäre kein Dokument — iOS bietet dafür kein
+     „In Dateien sichern" an. So greift der reguläre Druckdialog. */
+  const win = window.open('', '_blank');
+  if (!win) { alert('Das Fenster wurde blockiert. Bitte Pop-ups für diese Seite erlauben.'); return; }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
 }
 
 /* ==================================================================
