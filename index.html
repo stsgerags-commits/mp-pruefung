@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MP Prüfung">
+<meta name="apple-mobile-web-app-title" content="MP">
 <meta name="mobile-web-app-capable" content="yes">
 <title>Bewertung Mündliche Prüfung – Leistungsbild Thüringen</title>
 <style>
@@ -391,7 +391,7 @@ const scores = {};
 function satzFuer(krit, name){
   const sc=scores[krit.id];
   if(!sc) return null;
-  const ind=krit.indicators[sc.note-1];
+  const ind=krit.indicators[sc.noteIdx];   // noteIdx ist nullbasiert
   if(!ind) return null;
   /* Indikatoren mit 'reagiert' setzen die LAA als Subjekt voraus,
      nicht das Kriterium — daher eigene Satzform. */
